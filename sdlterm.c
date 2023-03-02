@@ -26,8 +26,8 @@
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 16
 
-#define DEFAULT_COLS 120
-#define DEFAULT_ROWS 35
+#define DEFAULT_COLS 200
+#define DEFAULT_ROWS 60
 
 #define WINDOW_WIDTH (DEFAULT_COLS * (FONT_WIDTH + 1))
 #define WINDOW_HEIGHT (DEFAULT_ROWS * FONT_HEIGHT)
@@ -377,7 +377,7 @@ int main(int argc, char **argv) {
     ctx = fbterm_init(
         malloc,
         framebuffer, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH * 4,
-        NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 1, 0
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 1, 0
     );
 
     if (!ctx) {
