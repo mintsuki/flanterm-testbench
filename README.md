@@ -1,4 +1,4 @@
-# limine-term-emu
+# limine-testbench
 
 A toy terminal emulator written using SDL and [the standalone Limine terminal](https://github.com/limine-bootloader/terminal).
 
