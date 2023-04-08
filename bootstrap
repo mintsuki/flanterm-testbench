@@ -1,0 +1,15 @@
+#! /bin/sh
+
+set -ex
+
+srcdir="$(dirname "$0")"
+test -z "$srcdir" && srcdir=.
+
+cd "$srcdir"
+
+[ -d flanterm ] || git clone https://github.com/mintsuki/flanterm.git
+
+mkdir -p build-aux
+cp "$(automake --print-libdir)/install-sh" build-aux
+
+autoreconf -fvi -Wall

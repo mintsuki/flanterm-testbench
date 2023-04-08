@@ -1,8 +1,8 @@
-# limine-term-testbench
+# Flanterm Testbench
 
-A toy terminal emulator written using SDL and [the standalone Limine terminal](https://github.com/limine-bootloader/terminal).
+A toy terminal emulator written using SDL and [Flanterm](https://github.com/mintsuki/flanterm).
 
-The goal of this project is to test the capabilities and improve the Limine terminal in real world use cases. The goal of this project
+The goal of this project is to test the capabilities and improve Flanterm in real world use cases. The goal of this project
 is NOT to build a fully capable terminal emulator or a viable alternative to already existing ones.
 
 Currently it is capable of running most of the popular tools and scripts decently well, like nano, neofetch or htop, though
@@ -18,8 +18,8 @@ directory and run `ninja` to build the binary. Don't forget to clone the submodu
 
 # Screenshots
 
-![Running nano in Limine terminal emulator](./screenshots/image0.png)
+![Running nano in Flanterm Testbench](./screenshots/image0.png)
 
-![Running neofetch in Limine terminal emulator](./screenshots/image1.png)
+![Running neofetch in Flanterm Testbench](./screenshots/image1.png)
 
-![Running htop in Limine terminal emulator](./screenshots/image2.png)
+![Running htop in Flanterm Testbench](./screenshots/image2.png)

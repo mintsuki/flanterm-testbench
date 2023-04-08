@@ -16,12 +16,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <errno.h>
-#include <config.h>
-#include <terminal/backends/framebuffer.h>
-
-#define LOGO_PATH "/assets/logo.bmp"
-#define INSTALLED_LOGO_PATH PACKAGE_DATADIR LOGO_PATH
-#define LOCAL_LOGO_PATH SOURCE_ROOT LOGO_PATH
+#include <flanterm/backends/fb.h>
 
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 16
@@ -39,7 +34,7 @@
 })
 
 static bool is_running = true;
-static struct term_context *ctx;
+static struct flanterm_context *ctx;
 static int pty_master;
 static Uint64 bell_start = 0;
 
@@ -48,20 +43,20 @@ static void free_with_size(void *ptr, size_t size) {
     free(ptr);
 }
 
-static void terminal_callback(struct term_context *ctx, uint64_t type, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
+static void terminal_callback(struct flanterm_context *ctx, uint64_t type, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
     (void)ctx;
     (void)arg1;
     (void)arg2;
     (void)arg3;
 
     switch (type) {
-        case TERM_CB_DEC:
+        case FLANTERM_CB_DEC:
             printf("TERM_CB_DEC");
             goto values;
-        case TERM_CB_MODE:
+        case FLANTERM_CB_MODE:
             printf("TERM_CB_MODE");
             goto values;
-        case TERM_CB_LINUX:
+        case FLANTERM_CB_LINUX:
             printf("TERM_CB_LINUX");
             values:
                 printf("(count=%lu, values={", arg1);
@@ -70,14 +65,14 @@ static void terminal_callback(struct term_context *ctx, uint64_t type, uint64_t 
                 }
                 printf("}, final='%c')\n", (int)arg3);
                 break;
-        case TERM_CB_BELL:
+        case FLANTERM_CB_BELL:
             printf("TERM_CB_BELL()\n");
             bell_start = SDL_GetTicks64();
             break;
-        case TERM_CB_PRIVATE_ID: printf("TERM_CB_PRIVATE_ID()\n"); break;
-        case TERM_CB_STATUS_REPORT: printf("TERM_CB_STATUS_REPORT()\n"); break;
-        case TERM_CB_POS_REPORT: printf("TERM_CB_POS_REPORT(x=%lu, y=%lu)\n", arg1, arg2); break;
-        case TERM_CB_KBD_LEDS:
+        case FLANTERM_CB_PRIVATE_ID: printf("TERM_CB_PRIVATE_ID()\n"); break;
+        case FLANTERM_CB_STATUS_REPORT: printf("TERM_CB_STATUS_REPORT()\n"); break;
+        case FLANTERM_CB_POS_REPORT: printf("TERM_CB_POS_REPORT(x=%lu, y=%lu)\n", arg1, arg2); break;
+        case FLANTERM_CB_KBD_LEDS:
             printf("TERM_CB_KBD_LEDS(state=");
             switch (arg1) {
                 case 0: printf("CLEAR_ALL"); break;
@@ -257,7 +252,7 @@ static void *read_from_pty(void *arg) {
             break;
         }
 
-        term_write(ctx, buffer, read_bytes);
+        flanterm_write(ctx, buffer, read_bytes);
     }
 
     is_running = false;
@@ -314,7 +309,7 @@ int main(int argc, char **argv) {
     }
 
     SDL_Window *window = SDL_CreateWindow(
-        "Limine Terminal",
+        "Flanterm Testbench",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH, WINDOW_HEIGHT,
         SDL_WINDOW_HIDDEN
@@ -324,26 +319,6 @@ int main(int argc, char **argv) {
         printf("SDL could not create window: %s\n", SDL_GetError());
         return 1;
     }
-
-    char *icon_path;
-
-    if (access(INSTALLED_LOGO_PATH, F_OK) == 0) {
-        icon_path = INSTALLED_LOGO_PATH;
-    } else if (access(LOCAL_LOGO_PATH, F_OK) == 0) {
-        icon_path = LOCAL_LOGO_PATH;
-    } else {
-        printf("sdl: window icon not found\n");
-        return -1;
-    }
-
-    SDL_Surface *icon = SDL_LoadBMP(icon_path);
-
-    if (!icon) {
-        printf("sdl: failed to load window icon\n");
-        return -1;
-    }
-
-    SDL_SetWindowIcon(window, icon);
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
@@ -374,7 +349,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    ctx = fbterm_init(
+    ctx = flanterm_fb_init(
         malloc,
         framebuffer, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH * 4,
         NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 1, 0
@@ -432,7 +407,6 @@ int main(int argc, char **argv) {
     kill(pid, SIGTERM);
     kill(pid, SIGKILL);
 
-    SDL_FreeSurface(icon);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
