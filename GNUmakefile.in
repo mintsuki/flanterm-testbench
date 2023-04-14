@@ -7,6 +7,7 @@ override BUILDDIR := @BUILDDIR@
 override PACKAGE_VERSION := @PACKAGE_VERSION@
 override PACKAGE_TARNAME := @PACKAGE_TARNAME@
 override OUTPUT := bin/$(PACKAGE_TARNAME)
+override WERROR_FLAG := @WERROR_FLAG@
 
 # Autoconf dir variables.
 override prefix := @prefix@
@@ -53,6 +54,9 @@ $(eval $(call DEFAULT_VAR,LIBS,@LIBS@))
 
 # Needed command flags.
 override CFLAGS += \
+    -Wall \
+    -Wextra \
+    $(WERROR_FLAG) \
     -std=gnu11 \
     $(shell '$(call SHESCAPE,$(NATIVE_PKGCONFIG))' --cflags sdl2)
 

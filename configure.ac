@@ -15,7 +15,7 @@ AC_DEFUN([PROG_ABSPATH], [
     esac
 ])
 
-test "x$CFLAGS" = "x" && CFLAGS='-g -O2 -pipe -Wall -Wextra'
+test "x$CFLAGS" = "x" && CFLAGS='-g -O2 -pipe'
 
 AC_LANG([C])
 AC_PROG_CC
@@ -29,7 +29,9 @@ AC_ARG_ENABLE([werror],
     [AS_HELP_STRING([--enable-werror], [treat warnings as errors])],
     [werror_state="$enableval"])
 if test "$werror_state" = "yes"; then
-    CFLAGS="$CFLAGS -Werror"
+    AC_SUBST([WERROR_FLAG], [-Werror])
+else
+    AC_SUBST([WERROR_FLAG], [-Wno-error])
 fi
 
 AC_PROG_MKDIR_P
