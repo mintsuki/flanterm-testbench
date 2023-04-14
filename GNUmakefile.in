@@ -57,17 +57,13 @@ override CFLAGS += \
     -Wall \
     -Wextra \
     $(WERROR_FLAG) \
-    -std=gnu11 \
-    $(shell '$(call SHESCAPE,$(NATIVE_PKGCONFIG))' --cflags sdl2)
+    -std=gnu11
 
 override CPPFLAGS := \
     -I'$(call SHESCAPE,$(SRCDIR))' \
     $(CPPFLAGS) \
     -MMD \
     -MP
-
-override LIBS += \
-    $(shell '$(call SHESCAPE,$(NATIVE_PKGCONFIG))' --libs sdl2)
 
 # Default target.
 .PHONY: all

@@ -21,9 +21,6 @@ AC_LANG([C])
 AC_PROG_CC
 PROG_ABSPATH([CC])
 
-AC_CHECK_HEADERS([stdio.h fcntl.h poll.h pthread.h signal.h stdbool.h stdlib.h sys/ioctl.h termios.h unistd.h errno.h SDL2/SDL.h],
-    [], [AC_MSG_ERROR([required header not found])])
-
 werror_state="no"
 AC_ARG_ENABLE([werror],
     [AS_HELP_STRING([--enable-werror], [treat warnings as errors])],
@@ -57,6 +54,12 @@ if ! test "x$NATIVE_PKGCONFIG_FOUND" = "xyes"; then
     NATIVE_PKGCONFIG=pkg-config
 fi
 AC_SUBST([NATIVE_PKGCONFIG])
+
+CFLAGS="$CFLAGS $($NATIVE_PKGCONFIG --cflags sdl2)"
+LIBS="$LIBS $($NATIVE_PKGCONFIG --libs sdl2)"
+
+AC_CHECK_HEADERS([stdio.h fcntl.h poll.h pthread.h signal.h stdbool.h stdlib.h sys/ioctl.h termios.h unistd.h errno.h SDL2/SDL.h],
+    [], [AC_MSG_ERROR([required header not found])])
 
 AC_PREFIX_DEFAULT([/usr/local])
 AC_CONFIG_FILES([GNUmakefile])
