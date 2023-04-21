@@ -8,6 +8,10 @@ override PACKAGE_VERSION := @PACKAGE_VERSION@
 override PACKAGE_TARNAME := @PACKAGE_TARNAME@
 override OUTPUT := bin/$(PACKAGE_TARNAME)
 override WERROR_FLAG := @WERROR_FLAG@
+override DEFAULT_CFLAGS := @CFLAGS@
+override DEFAULT_CPPFLAGS := @CPPFLAGS@
+override DEFAULT_LDFLAGS := @LDFLAGS@
+override DEFAULT_LIBS := @LIBS@
 
 # Autoconf dir variables.
 override prefix := @prefix@
@@ -47,10 +51,10 @@ override INSTALL := @INSTALL@
 override INSTALL_PROGRAM := @INSTALL_PROGRAM@
 
 # User command flags.
-$(eval $(call DEFAULT_VAR,CFLAGS,@CFLAGS@))
-$(eval $(call DEFAULT_VAR,CPPFLAGS,@CPPFLAGS@))
-$(eval $(call DEFAULT_VAR,LDFLAGS,@LDFLAGS@))
-$(eval $(call DEFAULT_VAR,LIBS,@LIBS@))
+$(eval $(call DEFAULT_VAR,CFLAGS,$(DEFAULT_CFLAGS)))
+$(eval $(call DEFAULT_VAR,CPPFLAGS,$(DEFAULT_CPPFLAGS)))
+$(eval $(call DEFAULT_VAR,LDFLAGS,$(DEFAULT_LDFLAGS)))
+$(eval $(call DEFAULT_VAR,LIBS,$(DEFAULT_LIBS)))
 
 # Needed command flags.
 override CFLAGS += \
