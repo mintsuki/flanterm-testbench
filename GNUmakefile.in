@@ -8,6 +8,7 @@ override PACKAGE_VERSION := @PACKAGE_VERSION@
 override PACKAGE_TARNAME := @PACKAGE_TARNAME@
 override OUTPUT := bin/$(PACKAGE_TARNAME)
 override WERROR_FLAG := @WERROR_FLAG@
+override DEFAULT_CC := @CC@
 override DEFAULT_CFLAGS := @CFLAGS@
 override DEFAULT_CPPFLAGS := @CPPFLAGS@
 override DEFAULT_LDFLAGS := @LDFLAGS@
@@ -41,11 +42,10 @@ define DEFAULT_VAR =
 endef
 
 # Overridable generator executables.
-$(eval $(call DEFAULT_VAR,CC,@CC@))
+$(eval $(call DEFAULT_VAR,CC,$(DEFAULT_CC)))
 
 # Non-overridable generator executables.
-override NATIVE_STRIP := @NATIVE_STRIP@
-override NATIVE_PKGCONFIG := @NATIVE_PKGCONFIG@
+override STRIP := @STRIP@
 override MKDIR_P := @MKDIR_P@
 override INSTALL := @INSTALL@
 override INSTALL_PROGRAM := @INSTALL_PROGRAM@
@@ -128,7 +128,7 @@ install: all
 # Install and strip executables.
 .PHONY: install-strip
 install-strip: install
-	$(NATIVE_STRIP) '$(call SHESCAPE,$(DESTDIR)$(bindir))'/"$$(basename '$(OUTPUT)')"
+	$(STRIP) '$(call SHESCAPE,$(DESTDIR)$(bindir))'/"$$(basename '$(OUTPUT)')"
 
 # Uninstall previously installed files and executables.
 .PHONY: uninstall

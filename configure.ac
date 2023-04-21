@@ -41,22 +41,23 @@ if ! test "x$FIND_FOUND" = "xyes"; then
     AC_MSG_ERROR([find not found, please install find before configuring])
 fi
 
-NATIVE_STRIP="$($CC -dumpmachine)"-strip
-AC_CHECK_PROG([NATIVE_STRIP_FOUND], [$NATIVE_STRIP], [yes])
-if ! test "x$NATIVE_STRIP_FOUND" = "xyes"; then
-    NATIVE_STRIP=strip
+STRIP="$($CC -dumpmachine)"-strip
+AC_CHECK_PROG([STRIP_FOUND], [$STRIP], [yes])
+if ! test "x$STRIP_FOUND" = "xyes"; then
+    STRIP=strip
 fi
-AC_SUBST([NATIVE_STRIP])
+AC_SUBST([STRIP])
 
-NATIVE_PKGCONFIG="$($CC -dumpmachine)"-pkg-config
-AC_CHECK_PROG([NATIVE_PKGCONFIG_FOUND], [$NATIVE_PKGCONFIG], [yes])
-if ! test "x$NATIVE_PKGCONFIG_FOUND" = "xyes"; then
-    NATIVE_PKGCONFIG=pkg-config
+PKGCONFIG="$($CC -dumpmachine)"-pkg-config
+AC_CHECK_PROG([PKGCONFIG_FOUND], [$PKGCONFIG], [yes])
+if ! test "x$PKGCONFIG_FOUND" = "xyes"; then
+    PKGCONFIG=pkg-config
 fi
-AC_SUBST([NATIVE_PKGCONFIG])
 
-CFLAGS="$CFLAGS $($NATIVE_PKGCONFIG --cflags sdl2)"
-LIBS="$LIBS $($NATIVE_PKGCONFIG --libs sdl2)"
+PKGCONFIG_LIBS="sdl2"
+
+CFLAGS="$CFLAGS $($PKGCONFIG --cflags $PKGCONFIG_LIBS)"
+LIBS="$LIBS $($PKGCONFIG --libs $PKGCONFIG_LIBS)"
 
 AC_CHECK_HEADERS([stdio.h fcntl.h poll.h pthread.h signal.h stdbool.h stdlib.h sys/ioctl.h termios.h unistd.h errno.h SDL2/SDL.h],
     [], [AC_MSG_ERROR([required header not found])])
