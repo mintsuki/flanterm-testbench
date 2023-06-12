@@ -27,9 +27,9 @@ SHESCAPE = $(subst ','\'',$(1))
 OBJESCAPE = $(subst .a ,.a' ',$(subst .o ,.o' ',$(call SHESCAPE,$(1))))
 
 # File lists.
-override CFILES := $(shell cd '$(call SHESCAPE,$(SRCDIR))' && find . -type f -name '*.c')
-override OBJ := $(addprefix $(call MKESCAPE,$(BUILDDIR))/,$(CFILES:.c=.o))
-override HEADER_DEPS := $(CFILES:.c=.d)
+override CFILES := $(shell cd '$(call SHESCAPE,$(SRCDIR))' && find -L . -type f -name '*.c')
+override OBJ := $(addprefix $(call MKESCAPE,$(BUILDDIR))/,$(CFILES:.c=.c.o))
+override HEADER_DEPS := $(CFILES:.c=.c.d)
 
 # DEFAULT_VAR definition.
 define DEFAULT_VAR =
@@ -69,6 +69,9 @@ override CPPFLAGS := \
     -MMD \
     -MP
 
+$(call MKESCAPE,$(BUILDDIR))/./flanterm/backends/fb.c.o: override CPPFLAGS += \
+    -DFLANTERM_FB_DISABLE_BUMP_ALLOC
+
 # Default target.
 .PHONY: all
 all: $(OUTPUT)
@@ -82,7 +85,7 @@ $(OUTPUT): $(OBJ)
 -include $(HEADER_DEPS)
 
 # Compilation rules for *.c files.
-$(call MKESCAPE,$(BUILDDIR))/%.o: $(call MKESCAPE,$(SRCDIR))/%.c
+$(call MKESCAPE,$(BUILDDIR))/%.c.o: $(call MKESCAPE,$(SRCDIR))/%.c
 	$(MKDIR_P) "$$(dirname '$(call SHESCAPE,$@)')"
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c '$(call SHESCAPE,$<)' -o '$(call SHESCAPE,$@)'
 

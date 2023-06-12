@@ -350,7 +350,7 @@ int main(int argc, char **argv) {
     }
 
     ctx = flanterm_fb_init(
-        malloc,
+        malloc, (void *)free,
         framebuffer, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH * 4,
         NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 1, 0
     );
