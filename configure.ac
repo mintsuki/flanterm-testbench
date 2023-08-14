@@ -56,10 +56,11 @@ fi
 
 PKGCONFIG_LIBS="sdl2"
 
-CFLAGS="$CFLAGS $($PKGCONFIG --cflags $PKGCONFIG_LIBS)"
-LIBS="$LIBS $($PKGCONFIG --libs $PKGCONFIG_LIBS)"
+CFLAGS="$CFLAGS $($PKGCONFIG --cflags-only-other $PKGCONFIG_LIBS 2>/dev/null)"
+CPPFLAGS="$($PKGCONFIG --cflags-only-I $PKGCONFIG_LIBS 2>/dev/null) $CPPFLAGS"
+LIBS="$LIBS $($PKGCONFIG --libs $PKGCONFIG_LIBS 2>/dev/null)"
 
-AC_CHECK_HEADERS([stdio.h fcntl.h poll.h pthread.h signal.h stdbool.h stdlib.h sys/ioctl.h termios.h unistd.h errno.h SDL2/SDL.h],
+AC_CHECK_HEADERS([stdio.h fcntl.h poll.h pthread.h signal.h stdbool.h stdlib.h sys/ioctl.h termios.h unistd.h errno.h SDL.h],
     [], [AC_MSG_ERROR([required header not found])])
 
 AC_PREFIX_DEFAULT([/usr/local])

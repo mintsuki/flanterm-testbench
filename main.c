@@ -1,9 +1,9 @@
 #if defined(__APPLE__)
-#  include <SDL2/SDL.h>
+#  include <SDL.h>
 #  define _XOPEN_SOURCE 600
 #else
 #  define _XOPEN_SOURCE 600
-#  include <SDL2/SDL.h>
+#  include <SDL.h>
 #endif
 
 #include <fcntl.h>
