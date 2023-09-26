@@ -7,7 +7,7 @@ test -z "$srcdir" && srcdir=.
 
 cd "$srcdir"
 
-[ -d flanterm ] || git clone https://github.com/mintsuki/flanterm.git
+[ -d src/flanterm ] || git clone https://github.com/mintsuki/flanterm.git src/flanterm
 
 mkdir -p build-aux
 cp "$(automake --print-libdir)/install-sh" build-aux
