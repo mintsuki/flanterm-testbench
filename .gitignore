@@ -1,5 +1,4 @@
 *.o
-*.dep
 *.tar.gz
 *.tar.xz
 /obj
