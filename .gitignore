@@ -3,11 +3,12 @@
 *.tar.xz
 /obj
 /bin
+/build
 /GNUmakefile
 /autom4te.cache
 /build-aux
 /config.log
 /config.status
 /configure
-/configure~
+/*~
 /src/flanterm
