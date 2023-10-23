@@ -10,5 +10,6 @@
 /config.log
 /config.status
 /configure
+/aclocal.m4
 /*~
 /src/flanterm
