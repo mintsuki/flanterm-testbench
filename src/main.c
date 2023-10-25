@@ -37,6 +37,7 @@ static bool is_running = true;
 static struct flanterm_context *ctx;
 static int pty_master;
 static Uint64 bell_start = 0;
+static Uint32 flush_event = 0;
 
 static void free_with_size(void *ptr, size_t size) {
     (void)size;
@@ -253,6 +254,13 @@ static void *read_from_pty(void *arg) {
         }
 
         flanterm_write(ctx, buffer, read_bytes);
+        SDL_Event queue_peep;
+        if (!SDL_PeepEvents(&queue_peep, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
+            /* If there are no events on the queue already, add one to force a redraw. */
+            SDL_Event ping;
+            ping.type = flush_event;
+            SDL_PushEvent(&ping);
+        }
     }
 
     is_running = false;
@@ -362,6 +370,8 @@ int main(int argc, char **argv) {
 
     ctx->callback = terminal_callback;
 
+    flush_event = SDL_RegisterEvents(1);
+
     pthread_t pty_thread;
 
     if (pthread_create(&pty_thread, NULL, read_from_pty, NULL) != 0) {
@@ -374,7 +384,7 @@ int main(int argc, char **argv) {
     for (; is_running;) {
         SDL_Event ev;
 
-        if (SDL_PollEvent(&ev)) {
+        if (SDL_WaitEvent(&ev)) {
             switch (ev.type) {
                 case SDL_QUIT:
                     is_running = false;
