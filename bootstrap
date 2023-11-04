@@ -9,7 +9,9 @@ cd "$srcdir"
 
 [ -d src/flanterm ] || git clone https://github.com/mintsuki/flanterm.git src/flanterm
 
+AUTOMAKE_LIBDIR="$(automake --print-libdir)"
+cp "${AUTOMAKE_LIBDIR}/INSTALL" ./
 mkdir -p build-aux
-cp "$(automake --print-libdir)/install-sh" build-aux
+cp "${AUTOMAKE_LIBDIR}/install-sh" build-aux/
 
 autoreconf -fvi -Wall
