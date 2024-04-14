@@ -71,9 +71,6 @@ override CFILES := $(shell cd '$(call SHESCAPE,$(SRCDIR))/src' && find -L * -typ
 override OBJ := $(addprefix obj/,$(CFILES:.c=.c.o))
 override HEADER_DEPS := $(addprefix obj/,$(CFILES:.c=.c.d))
 
-obj/flanterm/backends/fb.c.o: override CPPFLAGS += \
-    -DFLANTERM_FB_DISABLE_BUMP_ALLOC
-
 # Default target.
 .PHONY: all
 all: $(OUTPUT)

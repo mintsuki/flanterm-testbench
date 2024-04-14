@@ -21,10 +21,10 @@
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 16
 
-#define DEFAULT_COLS 200
-#define DEFAULT_ROWS 60
+#define DEFAULT_COLS (1366/9)
+#define DEFAULT_ROWS (768/16)
 
-#define WINDOW_WIDTH (DEFAULT_COLS * (FONT_WIDTH + 1))
+#define WINDOW_WIDTH (DEFAULT_COLS * (FONT_WIDTH + 1) + 4)
 #define WINDOW_HEIGHT (DEFAULT_ROWS * FONT_HEIGHT)
 
 #define MIN(A, B) ({ \
@@ -33,16 +33,13 @@
     MIN_a < MIN_b ? MIN_a : MIN_b; \
 })
 
+#ifndef FUZZER
+
 static bool is_running = true;
 static struct flanterm_context *ctx;
 static int pty_master;
 static Uint64 bell_start = 0;
 static Uint32 flush_event = 0;
-
-static void free_with_size(void *ptr, size_t size) {
-    (void)size;
-    free(ptr);
-}
 
 static void terminal_callback(struct flanterm_context *ctx, uint64_t type, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
     (void)ctx;
@@ -358,9 +355,11 @@ int main(int argc, char **argv) {
     }
 
     ctx = flanterm_fb_init(
-        malloc, (void *)free,
+        (void *)malloc, (void *)free,
         framebuffer, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH * 4,
-        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 1, 0
+        8, 16, 8, 8, 8, 0,
+        NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0
     );
 
     if (!ctx) {
@@ -421,5 +420,89 @@ int main(int argc, char **argv) {
     SDL_DestroyWindow(window);
     SDL_Quit();
 
-    ctx->deinit(ctx, free_with_size);
+    ctx->deinit(ctx, (void *)free);
 }
+
+#endif
+
+#ifdef FUZZER
+
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    static SDL_Renderer *renderer;
+    static void *framebuffer;
+    static SDL_Texture *framebuffer_texture;
+    static bool inited = false;
+    if (inited == false) {
+        if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+            return -1;
+        }
+
+        if (!SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0")) {
+            return -1;
+        }
+
+        SDL_Window *window = SDL_CreateWindow(
+            "Flanterm Testbench",
+            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+            WINDOW_WIDTH, WINDOW_HEIGHT,
+            SDL_WINDOW_HIDDEN
+        );
+
+        if (!window) {
+            return -1;
+        }
+
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+        if (!renderer) {
+            return -1;
+        }
+
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+        framebuffer = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4);
+
+        if (!framebuffer) {
+            return -1;
+        }
+
+        framebuffer_texture = SDL_CreateTexture(
+            renderer,
+            SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
+            WINDOW_WIDTH, WINDOW_HEIGHT
+        );
+
+        if (!framebuffer_texture) {
+            return -1;
+        }
+
+        SDL_ShowWindow(window);
+
+        inited = true;
+    }
+
+    struct flanterm_context *ctx = flanterm_fb_init(
+        NULL, NULL,
+        framebuffer, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH * 4,
+        8, 16, 8, 8, 8, 0,
+        NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1, 1, 0
+    );
+
+    if (!ctx) {
+        return -1;
+    }
+
+    flanterm_write(ctx, data, size);
+
+    SDL_UpdateTexture(framebuffer_texture, NULL, framebuffer, WINDOW_WIDTH * 4);
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, framebuffer_texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
+
+    ctx->deinit(ctx, NULL);
+
+    return 0;  // Values other than 0 and -1 are reserved for future use.
+}
+
+#endif
