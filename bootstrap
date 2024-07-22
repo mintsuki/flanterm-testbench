@@ -5,15 +5,63 @@ set -ex
 srcdir="$(dirname "$0")"
 test -z "$srcdir" && srcdir=.
 
+: "${AUTORECONF:=autoreconf}"
+: "${AUTOMAKE:=automake}"
+
 cd "$srcdir"
 
-[ -d src/flanterm ] || git clone https://github.com/mintsuki/flanterm.git src/flanterm
+# dependency hashes go here
+FLANTERM_COMMIT_HASH=ef07a10cc38b34aa003d17be97a9f3542e275069
 
-AUTOMAKE_LIBDIR="$(automake --print-libdir)"
-cp "${AUTOMAKE_LIBDIR}/INSTALL" ./
-mkdir -p build-aux
-cp "${AUTOMAKE_LIBDIR}/config.guess" build-aux/
-cp "${AUTOMAKE_LIBDIR}/config.sub" build-aux/
-cp "${AUTOMAKE_LIBDIR}/install-sh" build-aux/
+AUXFILES="config.guess config.sub install-sh"
 
-autoreconf -fvi -Wall
+clone_repo_commit() {
+    if test -d $2/.git; then
+        git -C $2 reset --hard
+        git -C $2 clean -fd
+        if ! git -C $2 checkout $3; then
+            rm -rf $2
+        fi
+    else
+        if test -d $2; then
+            echo "error: '$2' is not a Git repository"
+            exit 1
+        fi
+    fi
+    if ! test -d $2; then
+        git clone $1 $2
+        git -C $2 checkout $3
+    fi
+}
+
+if ! test -f version; then
+    # clone_repo_commit calls go here
+    clone_repo_commit https://github.com/mintsuki/flanterm.git src/flanterm $FLANTERM_COMMIT_HASH
+fi
+
+for auxfile in $AUXFILES; do
+    rm -f build-aux/$auxfile
+done
+
+$AUTORECONF -fvi -Wall
+
+# Older versions of autoreconf have a bug where they do not
+# install auxiliary files, sometimes... Check if that is the
+# case and work around...
+for auxfile in $AUXFILES; do
+    if ! test -f build-aux/$auxfile; then
+        if ! $AUTOMAKE --print-libdir >/dev/null 2>&1; then
+            echo "error: Broken autoreconf detected, but missing or broken automake."
+            echo "       Please make sure automake is installed and working."
+            exit 1
+        fi
+        AUTOMAKE_LIBDIR="$($AUTOMAKE --print-libdir)"
+        if test -z "$AUTOMAKE_LIBDIR"; then
+            # Assume `true` was passed as $AUTOMAKE
+            continue
+        fi
+        mkdir -p build-aux
+        cp -v "$AUTOMAKE_LIBDIR/$auxfile" build-aux/
+        chmod +x build-aux/$auxfile
+    fi
+done
