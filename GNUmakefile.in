@@ -67,7 +67,7 @@ override LIBS += \
 
 # Use "find" to glob all *.c files in the tree and obtain the
 # object and header dependency file names.
-override CFILES := $(shell cd '$(call SHESCAPE,$(SRCDIR))/src' && find -L * -type f -name '*.c')
+override CFILES := $(shell cd '$(call SHESCAPE,$(SRCDIR))/src' && find -L * -type f -name '*.c' | LC_ALL=C sort)
 override OBJ := $(addprefix obj/,$(CFILES:.c=.c.o))
 override HEADER_DEPS := $(addprefix obj/,$(CFILES:.c=.c.d))
 
